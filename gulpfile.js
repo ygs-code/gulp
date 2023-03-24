@@ -9,7 +9,7 @@ const babel = require("@babel/core");
 
 // 如果需要什么插件则看 gulp-xxx 插件 查看源码改造即可
 
-// es6 转es5 
+// es6 转es5
 var gpBabel = function (options = {}) {
   return function (path, opts) {
     return through(function (chunk, enc, callback) {
@@ -66,41 +66,20 @@ gulp.task("src", function () {
       //利用reactify工具将jsx转换为js
       transform: [
         uglify({
-          annotations: false,
-          toplevel: false,
+          annotations: true, //如果一个函数调用前面有注释注释/*@__PURE__*/或/*#__PURE__*/，则该函数调用被标记为“纯”。例如:/*@__PURE__*/foo();
+          toplevel: true, //-在顶级作用域中删除未引用的函数("funcs")和/或变量("vars")
         }),
         gpBabel({
           presets: ["@babel/env"],
         }),
-        // uglify,
-        // applySourceMap
-        // uglify({
-        //   mangle: false, // 跳过函数名，使其不被压缩，函数名也压缩可改为true
-        // }),
       ],
+      // umd 模式
       standalone: "index",
     })
-      // .pipe(
-      //     uglify({
-      //       mangle: false, // 跳过函数名，使其不被压缩，函数名也压缩可改为true
-      //     })
-      //   )
       //转换为gulp能识别的流
       .bundle()
-      // es6转换
-      //   .pipe(
-      //     babel({
-      //       presets: ["@babel/env"],
-      //     })
-      //   )
-
-      //合并输出为app.js
+      //合并输出为index.js
       .pipe(source("index.js"))
-      //   .pipe(
-      //     uglify({
-      //       mangle: false, // 跳过函数名，使其不被压缩，函数名也压缩可改为true
-      //     })
-      //   )
       //输出到当前文件夹中
       .pipe(gulp.dest("./dist"))
   );
